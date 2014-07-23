@@ -1362,6 +1362,8 @@ containing a value of this type.
         public static final int loadmore_txt=0x7f0a0013;
         public static final int no_more_news=0x7f0a0015;
         public static final int no_news=0x7f0a0014;
+        public static final int no_next_news=0x7f0a0017;
+        public static final int no_pre_news=0x7f0a0018;
         public static final int title_activity_comments=0x7f0a0011;
         public static final int title_activity_news_details=0x7f0a0010;
     }
