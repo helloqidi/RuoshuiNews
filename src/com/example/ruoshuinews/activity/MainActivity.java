@@ -42,29 +42,38 @@ public class MainActivity extends Activity {
 
 	
 	private final int COMUMNWIDTHPX = 100;	// 新闻分类的宽度
-	private final int FLINGVELOCITYPX =800;	// 滚动距离
-	
 	private int mColumnWidthDip;
+	
+	private final int FLINGVELOCITYPX =800;	// 滚动距离
 	private int mFlingVelocityDip;
+
+	private int mCid;	//新闻分类id
+	private ListView mNewsList;		//放置新闻列表的ListView
+	private SimpleAdapter mNewsListAdapter;
+	
+	private List<HashMap<String, Object>> mNewsData; //新闻列表内容List
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_main);
 		
+//		if (savedInstanceState == null) {
+//		getSupportFragmentManager().beginTransaction()
+//				.add(R.id.container, new PlaceholderFragment()).commit();
+//	}	
 		//在4.0之后在主线程里面执行Http请求都会报错,所以添加下面折行代码。正式应用不推荐这样写
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		    StrictMode.setThreadPolicy(policy);}
 		
-//		if (savedInstanceState == null) {
-//			getSupportFragmentManager().beginTransaction()
-//					.add(R.id.container, new PlaceholderFragment()).commit();
-//		}
-		
 		//将px转换为dp
 		mColumnWidthDip = DensityUtil.px2dip(this, COMUMNWIDTHPX);
 		mFlingVelocityDip = DensityUtil.px2dip(this, FLINGVELOCITYPX);
+		
+		//初始化新闻列表
+		mNewsData = new ArrayList<HashMap<String,Object>>();
 		
 		//新闻分类
 		String[] categoryArray = getResources().getStringArray(R.array.categories);
@@ -77,7 +86,7 @@ public class MainActivity extends Activity {
 //		}
 		
 		//分割新闻类型字符串
-		List<HashMap<String, Category>> categories = new ArrayList<HashMap<String, Category>>();
+		final List<HashMap<String, Category>> categories = new ArrayList<HashMap<String, Category>>();
 		for(int i=0;i<categoryArray.length;i++)
 		{
 			String[] temp = categoryArray[i].split("[|]");
@@ -93,6 +102,8 @@ public class MainActivity extends Activity {
 			}
 		}
 		
+		//默认选中的新闻分类
+		mCid = 1;
 		//创建Adapter，指明映射字段
 		CustomSimpleAdapter categoryAdapter = new CustomSimpleAdapter(this, categories, R.layout.category_title, new String[]{"category_title"}, new int[]{R.id.category_title});
 		
@@ -106,26 +117,28 @@ public class MainActivity extends Activity {
 		LayoutParams params = new LayoutParams(width, LayoutParams.WRAP_CONTENT);
 		category.setLayoutParams(params);
 		category.setAdapter(categoryAdapter);
-		
 		category.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id){
 				TextView categoryTitle;
 				//恢复每个单元格背景色
-				for (int i = 0; i < arg0.getChildCount(); i++)
+				for (int i = 0; i < parent.getChildCount(); i++)
 				{
-					categoryTitle = (TextView) (arg0.getChildAt(i));
+					categoryTitle = (TextView) (parent.getChildAt(i));
 					categoryTitle.setBackgroundDrawable(null);
 					categoryTitle.setTextColor(0XFFADB2AD);
 				}
 				//设置选择单元格的背景色
-				categoryTitle = (TextView) (arg0.getChildAt(arg2));
+				categoryTitle = (TextView) (parent.getChildAt(position));
 				categoryTitle.setBackgroundResource(R.drawable.categorybar_item_background);
 				categoryTitle.setTextColor(0XFFFFFFFF);
+				
+				//获取选中的新闻分类id
+				mCid = categories.get(position).get("category_title").getCid();
+				getSpeCateNews(mCid,mNewsData);
+				//通知ListView进行更新
+				mNewsListAdapter.notifyDataSetChanged();
 			}
-			
 		});
 		
 		//把category(GridView)加入到容器中
@@ -156,14 +169,13 @@ public class MainActivity extends Activity {
 //			hashMap.put("newslist_item_ptime", "2012-03-12 10:21:22");
 //			newsData.add(hashMap);
 //		}
-		List<HashMap<String, Object>> newsData = getSpeCateNews(1);
-		SimpleAdapter newsListAdapter = new SimpleAdapter(this, newsData, R.layout.newslist_item, 
+		getSpeCateNews(mCid,mNewsData);
+		mNewsListAdapter = new SimpleAdapter(this, mNewsData, R.layout.newslist_item, 
 										new String[]{"newslist_item_title","newslist_item_digest","newslist_item_source","newslist_item_ptime"}, 
 										new int[]{R.id.newslist_item_title,R.id.newslist_item_digest,R.id.newslist_item_source,R.id.newslist_item_ptime});
-		ListView newslist = (ListView)findViewById(R.id.news_list);
-		newslist.setAdapter(newsListAdapter);
-		
-		newslist.setOnItemClickListener(new OnItemClickListener()
+		mNewsList = (ListView)findViewById(R.id.news_list);
+		mNewsList.setAdapter(mNewsListAdapter);
+		mNewsList.setOnItemClickListener(new OnItemClickListener()
 		{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -175,14 +187,15 @@ public class MainActivity extends Activity {
 	}
 
 	
+	
 	/**
 	 * 获取指定类型的新闻列表
 	 * @param cid 类型ID
 	 * @param newsList 保存新闻信息的集合
 	 */
-	private List<HashMap<String, Object>> getSpeCateNews(int cid)
+	private void getSpeCateNews(int cid,List<HashMap<String, Object>> newsList)
 	{
-		List<HashMap<String, Object>> newsList = new ArrayList<HashMap<String, Object>>();
+		newsList.clear();
 		String url = "http://192.168.3.80:9292/getSpecifyCategoryNews";
 		String params = "startnid=0&count=10&cid="+cid;
 		SyncHttp syncHttp = new SyncHttp();
@@ -229,8 +242,9 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 			Toast.makeText(MainActivity.this, "获取新闻失败", Toast.LENGTH_LONG).show();
 		}
-		return newsList;
 	}	
+	
+	
 	
 	
 	
