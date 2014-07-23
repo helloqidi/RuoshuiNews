@@ -1,6 +1,12 @@
 package com.example.ruoshuinews.activity;
 
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +23,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.example.ruoshuinews.R;
+import com.example.ruoshuinews.service.SyncHttp;
 
 
 public class NewsDetailsActivity extends Activity
@@ -26,6 +33,43 @@ public class NewsDetailsActivity extends Activity
 	private float mStartX;
 	private int mCount;
 
+	private ArrayList<HashMap<String, Object>> mNewsData;	//传递过来的新闻列表信息
+	private int mPosition = 0;	//当前新闻在新闻列表中的位置
+	private int mNid;
+	
+	private final int FINISH = 0;
+	private TextView mNewsDetails;	//新闻详情所在的View
+	private Button mNewsdetailsTitlebarComm;// 新闻回复数
+	
+	private Handler mHandler = new Handler()
+	{
+		@Override
+		public void handleMessage(Message msg)
+		{
+			switch (msg.arg1)
+			{
+			case FINISH:
+				// 把获取到的新闻显示到界面上
+				mNewsDetails.setText(Html.fromHtml(msg.obj.toString()));
+				break;
+			}
+		}
+	};
+	
+	//异步获取新闻详情的线程
+	private class UpdateNewsThread extends Thread
+	{
+		@Override
+		public void run()
+		{
+			// 从网络上获取新闻
+			String newsBody = getNewsBody();
+			Message msg = mHandler.obtainMessage();
+			msg.arg1 = FINISH;
+			msg.obj = newsBody;
+			mHandler.sendMessage(msg);
+		}
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -42,23 +86,56 @@ public class NewsDetailsActivity extends Activity
 		Button newsdetailsTitlebarComm = (Button)findViewById(R.id.newsdetails_titlebar_comments);
 		newsdetailsTitlebarComm.setOnClickListener(newsDetailsTitleBarOnClickListener);
 		
-		mNewsBodyInflater = getLayoutInflater();
+		//获取传递的信息
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		// 设置标题栏名称
+		String categoryName = bundle.getString("categoryName");
+		TextView titleBarTitle = (TextView) findViewById(R.id.newsdetails_titlebar_title);
+		titleBarTitle.setText(categoryName);
+		//获取新闻集合
+		Serializable s  = bundle.getSerializable("newsDate");
+		mNewsData = (ArrayList<HashMap<String, Object>>) s;
+		//获取点击位置
+		mPosition = bundle.getInt("position");
+		//获取点击新闻基本信息
+		HashMap<String, Object> hashMap = mNewsData.get(mPosition);
 		
-		//动态创建新闻视图
+//		//动态创建新闻视图
+//		mNewsBodyInflater = getLayoutInflater();
+//		View newsBodyLayout = mNewsBodyInflater.inflate(R.layout.news_body, null);
+//		TextView newsTitle = (TextView)newsBodyLayout.findViewById(R.id.news_body_title);
+//		newsTitle.setText("若水新闻客户端教程发布啦");
+//		TextView newsPtimeAndSource = (TextView)newsBodyLayout.findViewById(R.id.news_body_ptime_source);
+//		newsPtimeAndSource.setText("来源：若水工作室      2012-03-12 10:21:22");
+//		TextView newsDetails = (TextView)newsBodyLayout.findViewById(R.id.news_body_details);
+//		newsDetails.setText(Html.fromHtml(NEWS));
+		mNewsBodyInflater = getLayoutInflater();
 		View newsBodyLayout = mNewsBodyInflater.inflate(R.layout.news_body, null);
+		//新闻标题
 		TextView newsTitle = (TextView)newsBodyLayout.findViewById(R.id.news_body_title);
-		newsTitle.setText("若水新闻客户端教程发布啦");
+		newsTitle.setText(hashMap.get("newslist_item_title").toString());
+		//发布时间和出处
 		TextView newsPtimeAndSource = (TextView)newsBodyLayout.findViewById(R.id.news_body_ptime_source);
-		newsPtimeAndSource.setText("来源：若水工作室      2012-03-12 10:21:22");
-		TextView newsDetails = (TextView)newsBodyLayout.findViewById(R.id.news_body_details);
-		newsDetails.setText(Html.fromHtml(NEWS));
+		newsPtimeAndSource.setText(hashMap.get("newslist_item_ptime").toString() + "    " + hashMap.get("newslist_item_source").toString());
+		//新闻编号
+		mNid = (Integer)hashMap.get("nid");
+		//新闻回复数
+		newsdetailsTitlebarComm.setText(hashMap.get("newslist_item_comments")+"跟帖");
+		//新闻详细信息
+		mNewsDetails = (TextView)newsBodyLayout.findViewById(R.id.news_body_details);
+//		newsDetails.setText(Html.fromHtml(NEWS));
+//		mNewsDetails.setText(Html.fromHtml(getNewsBody()));
 		
 		//把新闻视图添加到Flipper中
 		mNewsBodyFlipper = (ViewFlipper)findViewById(R.id.news_body_flipper);
 		mNewsBodyFlipper.addView(newsBodyLayout);
 		
 		//给新闻Body添加触摸事件
-		newsDetails.setOnTouchListener(new NewsBodyOnTouchListener());
+		mNewsDetails.setOnTouchListener(new NewsBodyOnTouchListener());
+		
+		// 启动线程
+		new UpdateNewsThread().start();
 	}
 	
 	/**
@@ -119,6 +196,36 @@ public class NewsDetailsActivity extends Activity
 			}
 			return true;
 		}
+	}
+	
+	/**
+	 * 获取新闻详细信息
+	 * @return
+	 */
+	private String getNewsBody()
+	{
+		String retStr = "网络连接失败，请稍后再试";
+		SyncHttp syncHttp = new SyncHttp();
+		String url = "http://192.168.3.80:9292/getNews";
+		String params = "nid=" + mNid;
+		try
+		{
+			String retString = syncHttp.httpGet(url, params);
+			JSONObject jsonObject = new JSONObject(retString);
+			//获取返回码，0表示成功
+			int retCode = jsonObject.getInt("ret");
+			if (0 == retCode)
+			{
+				JSONObject dataObject = jsonObject.getJSONObject("data");
+				JSONObject newsObject = dataObject.getJSONObject("news");
+				retStr = newsObject.getString("body");
+			}
+
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return retStr;
 	}
 	
 	/**

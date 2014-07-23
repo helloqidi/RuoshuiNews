@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
 	private ListView mNewsList;		//放置新闻列表的ListView
 	private SimpleAdapter mNewsListAdapter;
 	
-	private List<HashMap<String, Object>> mNewsData; //新闻列表内容List
+	private ArrayList<HashMap<String, Object>> mNewsData; //新闻列表内容List
 	
 	private LayoutInflater mInflater;
 	
@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 	
 	private LoadNewsAsyncTask loadNewsAsyncTask; //异步获取http信息并更新UI
 	
-
+	private String mCatName; //当前新闻分类
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
 		//获得进度条
 		mLoadnewsProgress = (ProgressBar)findViewById(R.id.loadnews_progress);
 		
-		//新闻分类
+		//从文件中获得新闻分类
 		String[] categoryArray = getResources().getStringArray(R.array.categories);
 		//把新闻分类保存到List中
 //		List<HashMap<String, String>> categories = new ArrayList<HashMap<String, String>>();
@@ -130,6 +130,7 @@ public class MainActivity extends Activity {
 		
 		//默认选中的新闻分类
 		mCid = 1;
+		mCatName = "焦点";
 		//创建Adapter，指明映射字段
 		CustomSimpleAdapter categoryAdapter = new CustomSimpleAdapter(this, categories, R.layout.category_title, new String[]{"category_title"}, new int[]{R.id.category_title});
 		
@@ -161,6 +162,7 @@ public class MainActivity extends Activity {
 				
 				//获取选中的新闻分类id
 				mCid = categories.get(position).get("category_title").getCid();
+				mCatName = categories.get(position).get("category_title").getTitle();
 //				getSpeCateNews(mCid,mNewsData,0,true);
 //				//通知ListView进行更新
 //				mNewsListAdapter.notifyDataSetChanged();
@@ -215,6 +217,10 @@ public class MainActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 				Intent intent = new Intent(MainActivity.this, NewsDetailsActivity.class);
+				//把需要的信息放到Intent中
+				intent.putExtra("newsDate", mNewsData);
+				intent.putExtra("position", position);
+				intent.putExtra("categoryName", mCatName);
 				startActivity(intent);
 			}
 		});
@@ -274,6 +280,7 @@ public class MainActivity extends Activity {
 						hashMap.put("newslist_item_digest", newsObject.getString("digest"));
 						hashMap.put("newslist_item_source", newsObject.getString("source"));
 						hashMap.put("newslist_item_ptime", newsObject.getString("ptime"));
+						hashMap.put("newslist_item_comments", newsObject.getString("commentcount"));
 						newsList.add(hashMap);
 					}
 					return SUCCESS;
