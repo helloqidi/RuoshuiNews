@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.example.ruoshuinews.R;
-import com.example.ruoshuinews.custom.CustomSimpleAdapter;
-import com.example.ruoshuinews.util.DensityUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +29,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.ruoshuinews.R;
+import com.example.ruoshuinews.custom.CustomSimpleAdapter;
+import com.example.ruoshuinews.model.Category;
+import com.example.ruoshuinews.service.SyncHttp;
+import com.example.ruoshuinews.util.DensityUtil;
+import com.example.ruoshuinews.util.StringUtil;
 
 public class MainActivity extends Activity {
 
@@ -43,7 +51,12 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fragment_main);
-
+		
+		//在4.0之后在主线程里面执行Http请求都会报错,所以添加下面折行代码。正式应用不推荐这样写
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		    StrictMode.setThreadPolicy(policy);}
+		
 //		if (savedInstanceState == null) {
 //			getSupportFragmentManager().beginTransaction()
 //					.add(R.id.container, new PlaceholderFragment()).commit();
@@ -56,11 +69,28 @@ public class MainActivity extends Activity {
 		//新闻分类
 		String[] categoryArray = getResources().getStringArray(R.array.categories);
 		//把新闻分类保存到List中
-		List<HashMap<String, String>> categories = new ArrayList<HashMap<String, String>>();
-		for (int i = 0; i < categoryArray.length; i++) {
-			HashMap<String, String> hashMap = new HashMap<String, String>();
-			hashMap.put("category_title", categoryArray[i]);
-			categories.add(hashMap);
+//		List<HashMap<String, String>> categories = new ArrayList<HashMap<String, String>>();
+//		for (int i = 0; i < categoryArray.length; i++) {
+//			HashMap<String, String> hashMap = new HashMap<String, String>();
+//			hashMap.put("category_title", categoryArray[i]);
+//			categories.add(hashMap);
+//		}
+		
+		//分割新闻类型字符串
+		List<HashMap<String, Category>> categories = new ArrayList<HashMap<String, Category>>();
+		for(int i=0;i<categoryArray.length;i++)
+		{
+			String[] temp = categoryArray[i].split("[|]");
+			if (temp.length==2)
+			{
+				//字符串转为int
+				int cid = StringUtil.String2Int(temp[0]);
+				String title = temp[1];
+				Category type = new Category(cid, title);
+				HashMap<String, Category> hashMap = new HashMap<String, Category>();
+				hashMap.put("category_title", type);
+				categories.add(hashMap);
+			}
 		}
 		
 		//创建Adapter，指明映射字段
@@ -116,16 +146,17 @@ public class MainActivity extends Activity {
 		});
 		
 		//获取指定栏目的新闻列表
-		List<HashMap<String, String>> newsData = new ArrayList<HashMap<String,String>>();
-		for(int i=0;i<10;i++)
-		{
-			HashMap<String, String> hashMap = new HashMap<String, String>();
-			hashMap.put("newslist_item_title","若水新闻客户端教程发布啦" );
-			hashMap.put("newslist_item_digest","若水新闻客户端教程发布啦" );
-			hashMap.put("newslist_item_source", "来源：若水工作室");
-			hashMap.put("newslist_item_ptime", "2012-03-12 10:21:22");
-			newsData.add(hashMap);
-		}
+//		List<HashMap<String, String>> newsData = new ArrayList<HashMap<String,String>>();
+//		for(int i=0;i<10;i++)
+//		{
+//			HashMap<String, String> hashMap = new HashMap<String, String>();
+//			hashMap.put("newslist_item_title","若水新闻客户端教程发布啦" );
+//			hashMap.put("newslist_item_digest","若水新闻客户端教程发布啦" );
+//			hashMap.put("newslist_item_source", "来源：若水工作室");
+//			hashMap.put("newslist_item_ptime", "2012-03-12 10:21:22");
+//			newsData.add(hashMap);
+//		}
+		List<HashMap<String, Object>> newsData = getSpeCateNews(1);
 		SimpleAdapter newsListAdapter = new SimpleAdapter(this, newsData, R.layout.newslist_item, 
 										new String[]{"newslist_item_title","newslist_item_digest","newslist_item_source","newslist_item_ptime"}, 
 										new int[]{R.id.newslist_item_title,R.id.newslist_item_digest,R.id.newslist_item_source,R.id.newslist_item_ptime});
@@ -143,6 +174,66 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	
+	/**
+	 * 获取指定类型的新闻列表
+	 * @param cid 类型ID
+	 * @param newsList 保存新闻信息的集合
+	 */
+	private List<HashMap<String, Object>> getSpeCateNews(int cid)
+	{
+		List<HashMap<String, Object>> newsList = new ArrayList<HashMap<String, Object>>();
+		String url = "http://192.168.3.80:9292/getSpecifyCategoryNews";
+		String params = "startnid=0&count=10&cid="+cid;
+		SyncHttp syncHttp = new SyncHttp();
+		try
+		{
+			//以Get方式请求，并获得返回结果
+			String retStr = syncHttp.httpGet(url, params);
+			System.out.println(retStr);
+			JSONObject jsonObject = new JSONObject(retStr);
+			//获取返回码，0表示成功
+			int retCode = jsonObject.getInt("ret");
+			if (0==retCode)
+			{
+				JSONObject dataObject = jsonObject.getJSONObject("data");
+				//获取返回数目
+				int totalnum = dataObject.getInt("totalnum");
+				if (totalnum>0)
+				{
+					//获取返回新闻集合
+					JSONArray newslist = dataObject.getJSONArray("newslist");
+					for(int i=0;i<newslist.length();i++)
+					{
+						JSONObject newsObject = (JSONObject)newslist.opt(i); 
+						HashMap<String, Object> hashMap = new HashMap<String, Object>();
+						hashMap.put("nid", newsObject.getInt("nid"));
+						hashMap.put("newslist_item_title", newsObject.getString("title"));
+						hashMap.put("newslist_item_digest", newsObject.getString("digest"));
+						hashMap.put("newslist_item_source", newsObject.getString("source"));
+						hashMap.put("newslist_item_ptime", newsObject.getString("ptime"));
+						newsList.add(hashMap);
+					}
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, "该栏目下暂时没有新闻", Toast.LENGTH_LONG).show();
+				}
+			}
+			else
+			{
+				Toast.makeText(MainActivity.this, "获取新闻失败", Toast.LENGTH_LONG).show();
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			Toast.makeText(MainActivity.this, "获取新闻失败", Toast.LENGTH_LONG).show();
+		}
+		return newsList;
+	}	
+	
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
