@@ -6,5 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_news_details">NewsDetailsActivity</string>
     <string name="title_activity_comments">CommentsActivity</string>
+    <string name="loadmore_btn">加载更多</string>
+    <string name="loadmore_txt">正在加载，请稍候...</string>
 
 </resources>

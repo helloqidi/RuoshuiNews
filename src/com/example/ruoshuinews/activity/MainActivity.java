@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
 	
 	private List<HashMap<String, Object>> mNewsData; //新闻列表内容List
 	
+	private LayoutInflater mInflater;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public class MainActivity extends Activity {
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		    StrictMode.setThreadPolicy(policy);}
+		
+		//初始化
+		mInflater = getLayoutInflater();
 		
 		//将px转换为dp
 		mColumnWidthDip = DensityUtil.px2dip(this, COMUMNWIDTHPX);
@@ -135,7 +139,7 @@ public class MainActivity extends Activity {
 				
 				//获取选中的新闻分类id
 				mCid = categories.get(position).get("category_title").getCid();
-				getSpeCateNews(mCid,mNewsData);
+				getSpeCateNews(mCid,mNewsData,0,true);
 				//通知ListView进行更新
 				mNewsListAdapter.notifyDataSetChanged();
 			}
@@ -169,11 +173,14 @@ public class MainActivity extends Activity {
 //			hashMap.put("newslist_item_ptime", "2012-03-12 10:21:22");
 //			newsData.add(hashMap);
 //		}
-		getSpeCateNews(mCid,mNewsData);
+		getSpeCateNews(mCid,mNewsData,0,true);
 		mNewsListAdapter = new SimpleAdapter(this, mNewsData, R.layout.newslist_item, 
 										new String[]{"newslist_item_title","newslist_item_digest","newslist_item_source","newslist_item_ptime"}, 
 										new int[]{R.id.newslist_item_title,R.id.newslist_item_digest,R.id.newslist_item_source,R.id.newslist_item_ptime});
 		mNewsList = (ListView)findViewById(R.id.news_list);
+		//创建加载更多的view
+		View loadMoreLayout = mInflater.inflate(R.layout.loadmore, null);
+		mNewsList.addFooterView(loadMoreLayout);	//必须放在setAdapter上面
 		mNewsList.setAdapter(mNewsListAdapter);
 		mNewsList.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -184,20 +191,30 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		//找到加载更多的按钮
+		Button loadMoreBtn = (Button)findViewById(R.id.loadmore_btn);
+		loadMoreBtn.setOnClickListener(loadMoreListener);
 	}
 
-	
+
 	
 	/**
 	 * 获取指定类型的新闻列表
 	 * @param cid 类型ID
 	 * @param newsList 保存新闻信息的集合
+	 * @param startnid 分页
+	 * @param firstTimes	是否第一次加载
 	 */
-	private void getSpeCateNews(int cid,List<HashMap<String, Object>> newsList)
+	private void getSpeCateNews(int cid,List<HashMap<String, Object>> newsList,int startnid,Boolean firstTimes)
 	{
-		newsList.clear();
+		if (firstTimes)
+		{
+			//如果是第一次，则清空集合里数据
+			newsList.clear();
+		}
+		//请求URL和字符串
 		String url = "http://192.168.3.80:9292/getSpecifyCategoryNews";
-		String params = "startnid=0&count=10&cid="+cid;
+		String params = "startnid="+startnid+"&count=8&cid="+cid;
 		SyncHttp syncHttp = new SyncHttp();
 		try
 		{
@@ -245,7 +262,17 @@ public class MainActivity extends Activity {
 	}	
 	
 	
-	
+	private OnClickListener loadMoreListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			//获取该栏目下新闻
+			getSpeCateNews(mCid,mNewsData,mNewsData.size(),false);
+			//通知ListView进行更新
+			mNewsListAdapter.notifyDataSetChanged();
+		}
+	};
 	
 	
 	@Override

@@ -51,5 +51,9 @@
     <item type="id" name="commentator_from"/>
     <item type="id" name="comment_ptime"/>
     <item type="id" name="comment_content"/>
+    <item type="id" name="loadmore_layout"/>
+    <item type="id" name="loadmore_btn"/>
+    <item type="id" name="loadmore_progress"/>
+    <item type="id" name="loadmore_txt"/>
 	
 </resources>
