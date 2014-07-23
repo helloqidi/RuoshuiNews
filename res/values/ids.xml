@@ -55,5 +55,6 @@
     <item type="id" name="loadmore_btn"/>
     <item type="id" name="loadmore_progress"/>
     <item type="id" name="loadmore_txt"/>
+    <item type="id" name="loadnews_progress"/>
 	
 </resources>

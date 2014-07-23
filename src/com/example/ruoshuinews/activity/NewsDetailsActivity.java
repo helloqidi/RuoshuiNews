@@ -1,11 +1,11 @@
 package com.example.ruoshuinews.activity;
 
 
-import com.example.ruoshuinews.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.example.ruoshuinews.R;
+
 
 public class NewsDetailsActivity extends Activity
 {
@@ -23,6 +25,7 @@ public class NewsDetailsActivity extends Activity
 	private LayoutInflater mNewsBodyInflater;
 	private float mStartX;
 	private int mCount;
+
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -86,7 +89,7 @@ public class NewsDetailsActivity extends Activity
 	}
 	
 	/**
-	 * 处理新闻NewsBody触摸事件
+	 * 处理新闻NewsBody滑动效果
 	 */
 	class NewsBodyOnTouchListener implements OnTouchListener
 	{
@@ -136,7 +139,7 @@ public class NewsDetailsActivity extends Activity
 		newsPtimeAndSource.setText("来源：若水工作室      2012-03-12 10:21:22");
 		TextView newsDetails = (TextView)newsBodyLayout.findViewById(R.id.news_body_details);
 		newsDetails.setText(Html.fromHtml(NEWS));
-		//添加触摸时间
+		//添加触摸事件
 		newsDetails.setOnTouchListener(new NewsBodyOnTouchListener());
 		mNewsBodyFlipper.addView(newsBodyLayout);
 		//显示下一屏

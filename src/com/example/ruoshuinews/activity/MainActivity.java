@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +49,12 @@ public class MainActivity extends Activity {
 	private final int FLINGVELOCITYPX =800;	// 滚动距离
 	private int mFlingVelocityDip;
 
+	private final int SUCCESS = 0;//加载成功
+	private final int NONEWS = 1;//该栏目下没有新闻
+	private final int NOMORENEWS = 2;//该栏目下没有更多新闻
+	private final int LOADERROR = 3;//加载失败
+	
+	
 	private int mCid;	//新闻分类id
 	private ListView mNewsList;		//放置新闻列表的ListView
 	private SimpleAdapter mNewsListAdapter;
@@ -54,6 +62,14 @@ public class MainActivity extends Activity {
 	private List<HashMap<String, Object>> mNewsData; //新闻列表内容List
 	
 	private LayoutInflater mInflater;
+	
+	private Button mTitlebarRefresh;	//刷新按钮
+	private ProgressBar mLoadnewsProgress;	//进度条
+	private Button mLoadMoreBtn;	//加载更多按钮
+	
+	private LoadNewsAsyncTask loadNewsAsyncTask; //异步获取http信息并更新UI
+	
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +85,7 @@ public class MainActivity extends Activity {
 		    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		    StrictMode.setThreadPolicy(policy);}
 		
-		//初始化
+		//初始化LayoutInflater
 		mInflater = getLayoutInflater();
 		
 		//将px转换为dp
@@ -78,6 +94,12 @@ public class MainActivity extends Activity {
 		
 		//初始化新闻列表
 		mNewsData = new ArrayList<HashMap<String,Object>>();
+		
+		//获得更新按钮
+		mTitlebarRefresh = (Button)findViewById(R.id.titlebar_refresh);
+		mTitlebarRefresh.setOnClickListener(loadMoreListener);
+		//获得进度条
+		mLoadnewsProgress = (ProgressBar)findViewById(R.id.loadnews_progress);
 		
 		//新闻分类
 		String[] categoryArray = getResources().getStringArray(R.array.categories);
@@ -139,9 +161,11 @@ public class MainActivity extends Activity {
 				
 				//获取选中的新闻分类id
 				mCid = categories.get(position).get("category_title").getCid();
-				getSpeCateNews(mCid,mNewsData,0,true);
-				//通知ListView进行更新
-				mNewsListAdapter.notifyDataSetChanged();
+//				getSpeCateNews(mCid,mNewsData,0,true);
+//				//通知ListView进行更新
+//				mNewsListAdapter.notifyDataSetChanged();
+				loadNewsAsyncTask = new LoadNewsAsyncTask();
+				loadNewsAsyncTask.execute(mCid,0,true);
 			}
 		});
 		
@@ -173,11 +197,14 @@ public class MainActivity extends Activity {
 //			hashMap.put("newslist_item_ptime", "2012-03-12 10:21:22");
 //			newsData.add(hashMap);
 //		}
-		getSpeCateNews(mCid,mNewsData,0,true);
+		
+		//默认获取一个分类的新闻
+//		getSpeCateNews(mCid,mNewsData,0,true);
 		mNewsListAdapter = new SimpleAdapter(this, mNewsData, R.layout.newslist_item, 
 										new String[]{"newslist_item_title","newslist_item_digest","newslist_item_source","newslist_item_ptime"}, 
 										new int[]{R.id.newslist_item_title,R.id.newslist_item_digest,R.id.newslist_item_source,R.id.newslist_item_ptime});
 		mNewsList = (ListView)findViewById(R.id.news_list);
+		
 		//创建加载更多的view
 		View loadMoreLayout = mInflater.inflate(R.layout.loadmore, null);
 		mNewsList.addFooterView(loadMoreLayout);	//必须放在setAdapter上面
@@ -191,9 +218,14 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		
 		//找到加载更多的按钮
-		Button loadMoreBtn = (Button)findViewById(R.id.loadmore_btn);
-		loadMoreBtn.setOnClickListener(loadMoreListener);
+		mLoadMoreBtn = (Button)findViewById(R.id.loadmore_btn);
+		mLoadMoreBtn.setOnClickListener(loadMoreListener);
+		
+		//默认获取一个分类的新闻
+		loadNewsAsyncTask = new LoadNewsAsyncTask();
+		loadNewsAsyncTask.execute(mCid,0,true);
 	}
 
 
@@ -205,7 +237,7 @@ public class MainActivity extends Activity {
 	 * @param startnid 分页
 	 * @param firstTimes	是否第一次加载
 	 */
-	private void getSpeCateNews(int cid,List<HashMap<String, Object>> newsList,int startnid,Boolean firstTimes)
+	private int getSpeCateNews(int cid,List<HashMap<String, Object>> newsList,int startnid,Boolean firstTimes)
 	{
 		if (firstTimes)
 		{
@@ -220,7 +252,7 @@ public class MainActivity extends Activity {
 		{
 			//以Get方式请求，并获得返回结果
 			String retStr = syncHttp.httpGet(url, params);
-			System.out.println(retStr);
+			System.out.println("##"+retStr);
 			JSONObject jsonObject = new JSONObject(retStr);
 			//获取返回码，0表示成功
 			int retCode = jsonObject.getInt("ret");
@@ -244,35 +276,117 @@ public class MainActivity extends Activity {
 						hashMap.put("newslist_item_ptime", newsObject.getString("ptime"));
 						newsList.add(hashMap);
 					}
+					return SUCCESS;
 				}
 				else
 				{
-					Toast.makeText(MainActivity.this, "该栏目下暂时没有新闻", Toast.LENGTH_LONG).show();
+					if (firstTimes)
+					{
+						return NONEWS;
+					}
+					else
+					{
+						return NOMORENEWS;
+					}
 				}
 			}
 			else
 			{
-				Toast.makeText(MainActivity.this, "获取新闻失败", Toast.LENGTH_LONG).show();
+				return LOADERROR;
 			}
 		} catch (Exception e)
 		{
 			e.printStackTrace();
-			Toast.makeText(MainActivity.this, "获取新闻失败", Toast.LENGTH_LONG).show();
+			return LOADERROR;
 		}
-	}	
+	}
+
 	
-	
+//	//加载更多
+//	private OnClickListener loadMoreListener = new OnClickListener()
+//	{
+//		@Override
+//		public void onClick(View v)
+//		{
+//			//获取该栏目下新闻
+//			getSpeCateNews(mCid,mNewsData,mNewsData.size(),false);
+//			//通知ListView进行更新
+//			mNewsListAdapter.notifyDataSetChanged();
+//		}
+//	};
+	//加载更多、刷新按钮的监听
 	private OnClickListener loadMoreListener = new OnClickListener()
 	{
 		@Override
 		public void onClick(View v)
 		{
-			//获取该栏目下新闻
-			getSpeCateNews(mCid,mNewsData,mNewsData.size(),false);
-			//通知ListView进行更新
-			mNewsListAdapter.notifyDataSetChanged();
+			loadNewsAsyncTask = new LoadNewsAsyncTask();
+			switch (v.getId())
+			{
+			case R.id.loadmore_btn:
+				//获取该栏目下新闻
+				//getSpeCateNews(mCid,mNewsData,mNewsData.size(),false);
+				//通知ListView进行更新
+				//mNewsListAdapter.notifyDataSetChanged();
+				loadNewsAsyncTask.execute(mCid,mNewsData.size(),false);
+				break;
+			case R.id.titlebar_refresh:
+				loadNewsAsyncTask.execute(mCid,0,true);
+				break;
+			}
+			
 		}
-	};
+	};	
+
+	private class LoadNewsAsyncTask extends AsyncTask<Object, Integer, Integer>
+	{
+		
+		@Override
+		protected void onPreExecute()
+		{
+			//隐藏刷新按钮
+			mTitlebarRefresh.setVisibility(View.GONE);
+			//显示进度条
+			mLoadnewsProgress.setVisibility(View.VISIBLE); 
+			//设置LoadMore Button 显示文本
+			mLoadMoreBtn.setText(R.string.loadmore_txt);
+		}
+
+		@Override
+		protected Integer doInBackground(Object... params)
+		{
+			return getSpeCateNews((Integer)params[0],mNewsData,(Integer)params[1],(Boolean)params[2]);
+		}
+
+		@Override
+		protected void onPostExecute(Integer result)
+		{
+			//根据返回值显示相关的Toast
+			switch (result)
+			{
+			case NONEWS:
+				Toast.makeText(MainActivity.this, R.string.no_news, Toast.LENGTH_LONG).show();
+			break;
+			case NOMORENEWS:
+				Toast.makeText(MainActivity.this, R.string.no_more_news, Toast.LENGTH_LONG).show();
+				break;
+			case LOADERROR:
+				Toast.makeText(MainActivity.this, R.string.load_news_failure, Toast.LENGTH_LONG).show();
+				break;
+			}
+			
+			mNewsListAdapter.notifyDataSetChanged();
+			//显示刷新按钮
+			mTitlebarRefresh.setVisibility(View.VISIBLE);
+			//隐藏进度条
+			mLoadnewsProgress.setVisibility(View.GONE); 
+			//设置LoadMore Button 显示文本
+			mLoadMoreBtn.setText(R.string.loadmore_btn);
+		}
+	}	
+	
+	
+	
 	
 	
 	@Override
