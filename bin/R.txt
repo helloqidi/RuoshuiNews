@@ -460,6 +460,8 @@ int string no_more_news 0x7f0a0015
 int string no_news 0x7f0a0014
 int string no_next_news 0x7f0a0017
 int string no_pre_news 0x7f0a0018
+int string post_failure 0x7f0a001a
+int string post_success 0x7f0a0019
 int string title_activity_comments 0x7f0a0011
 int string title_activity_news_details 0x7f0a0010
 int style AppBaseTheme 0x7f0b008b

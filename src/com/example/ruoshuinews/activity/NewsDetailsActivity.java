@@ -4,10 +4,12 @@ package com.example.ruoshuinews.activity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,12 +20,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.example.ruoshuinews.R;
+import com.example.ruoshuinews.model.Parameter;
 import com.example.ruoshuinews.service.SyncHttp;
 
 
@@ -41,9 +47,14 @@ public class NewsDetailsActivity extends Activity
 	private final int FINISH = 0;
 	private TextView mNewsDetails;	//新闻详情所在的View
 	private Button mNewsdetailsTitlebarComm;// 新闻回复数
-	
 	private int mCursor;
 	
+	private ImageButton mNewsReplyImgBtn;// 发表新闻回复图片
+	private LinearLayout mNewsReplyImgLayout;// 发表新闻回复图片Layout
+	private LinearLayout mNewsReplyEditLayout;// 发表新闻回复编辑框Layout
+	private TextView mNewsReplyContent;// 新闻回复编辑框
+	
+	//new一个Handler
 	private Handler mHandler = new Handler()
 	{
 		@Override
@@ -60,6 +71,7 @@ public class NewsDetailsActivity extends Activity
 	};
 	
 	//异步获取新闻详情的线程
+	//在这个线程里面不能操作UI
 	private class UpdateNewsThread extends Thread
 	{
 		@Override
@@ -74,20 +86,70 @@ public class NewsDetailsActivity extends Activity
 		}
 	}
 	
+
+	//发表回复的线程
+	//在这个线程中，可以操作UI，因为调用方法是: mNewsReplyEditLayout.post(new PostCommentThread())，这个方法把线程放到主线程中执行。
+	private class PostCommentThread extends Thread
+	{
+		@Override
+		public void run()
+		{
+			SyncHttp syncHttp = new SyncHttp();
+			String url = "http://192.168.3.80:9292/postComment";
+			List<Parameter> params = new ArrayList<Parameter>();
+			params.add(new Parameter("nid", mNid + ""));	//后面加+""是为了变为String类型
+			params.add(new Parameter("region", "江苏省连云港市"));
+			params.add(new Parameter("content", mNewsReplyContent.getText().toString()));
+			try
+			{
+				String retStr = syncHttp.httpPost(url, params);
+				JSONObject jsonObject = new JSONObject(retStr);
+				int retCode = jsonObject.getInt("ret");
+				if (0 == retCode)
+				{
+					Toast.makeText(NewsDetailsActivity.this, R.string.post_success, Toast.LENGTH_SHORT).show();
+					mNewsReplyImgLayout.setVisibility(View.VISIBLE);
+					mNewsReplyEditLayout.setVisibility(View.GONE);
+					return;
+				}
+
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			Toast.makeText(NewsDetailsActivity.this, R.string.post_failure, Toast.LENGTH_SHORT).show();
+		}
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.newsdetails);
 		
+		// 查找新闻回复图片Layout
+		mNewsReplyImgLayout = (LinearLayout) findViewById(R.id.news_reply_img_layout);
+		// 查找新闻回复回复Layout
+		mNewsReplyEditLayout = (LinearLayout) findViewById(R.id.news_reply_edit_layout);
+		// 新闻回复内容
+		mNewsReplyContent = (TextView) findViewById(R.id.news_reply_edittext);
+		
 		//给TitleBar中的Button设置OnClickListener
 		Button newsDetailsTitlebarPref = (Button)findViewById(R.id.newsdetails_titlebar_previous);
-		NewsDetailsTitleBarOnClickListener newsDetailsTitleBarOnClickListener = new NewsDetailsTitleBarOnClickListener();
-		newsDetailsTitlebarPref.setOnClickListener(newsDetailsTitleBarOnClickListener);
+		NewsDetailsOnClickListener newsDetailsOnClickListener = new NewsDetailsOnClickListener();
+		newsDetailsTitlebarPref.setOnClickListener(newsDetailsOnClickListener);
 		Button newsDetailsTitlebarNext = (Button)findViewById(R.id.newsdetails_titlebar_next);
-		newsDetailsTitlebarNext.setOnClickListener(newsDetailsTitleBarOnClickListener);
+		newsDetailsTitlebarNext.setOnClickListener(newsDetailsOnClickListener);
+		//新闻回复数Button
 		mNewsdetailsTitlebarComm = (Button)findViewById(R.id.newsdetails_titlebar_comments);
-		mNewsdetailsTitlebarComm.setOnClickListener(newsDetailsTitleBarOnClickListener);
+		mNewsdetailsTitlebarComm.setOnClickListener(newsDetailsOnClickListener);
+		// 发表新闻回复图片Button
+		mNewsReplyImgBtn = (ImageButton) findViewById(R.id.news_reply_img_btn);
+		mNewsReplyImgBtn.setOnClickListener(newsDetailsOnClickListener);
+		// 发表回复
+		Button newsReplyPost = (Button) findViewById(R.id.news_reply_post);
+		newsReplyPost.setOnClickListener(newsDetailsOnClickListener);
+		
 		
 		//获取传递的信息
 		Intent intent = getIntent();
@@ -108,30 +170,46 @@ public class NewsDetailsActivity extends Activity
 	}
 	
 	/**
-	 * 处理NewsDetailsTitleBar点击事件
+	 * 处理NewsDetails点击事件
 	 */
-	class NewsDetailsTitleBarOnClickListener implements OnClickListener
+	class NewsDetailsOnClickListener implements OnClickListener
 	{
 		@Override
 		public void onClick(View v)
 		{
+			//键盘输入管理对象
+			InputMethodManager m = (InputMethodManager) mNewsReplyContent.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+			
 			switch (v.getId())
 			{
-			//上一条新闻
+			// 上一条新闻
 			case R.id.newsdetails_titlebar_previous:
 				showPrevious();
 				break;
-			//下一条新闻
+			// 下一条新闻
 			case R.id.newsdetails_titlebar_next:
 				showNext();
 				break;
-			//显示评论
+			// 显示评论
 			case R.id.newsdetails_titlebar_comments:
 				Intent intent = new Intent(NewsDetailsActivity.this, CommentsActivity.class);
 				startActivity(intent);
 				break;
+			// 新闻回复图片
+			case R.id.news_reply_img_btn:
+				mNewsReplyImgLayout.setVisibility(View.GONE);
+				mNewsReplyEditLayout.setVisibility(View.VISIBLE);
+				mNewsReplyContent.requestFocus();	//光标聚焦到输入框
+				m.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);	//显示键盘
+				break;
+			// 发表新闻回复
+			case R.id.news_reply_post:
+				mNewsReplyEditLayout.post(new PostCommentThread());
+				mNewsReplyImgLayout.setVisibility(View.VISIBLE);
+				mNewsReplyEditLayout.setVisibility(View.GONE);
+				m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+				break;
 			}
-			
 		}
 	}
 	
@@ -149,6 +227,12 @@ public class NewsDetailsActivity extends Activity
 			case MotionEvent.ACTION_DOWN:
 				//记录起始坐标
 				mStartX = event.getX();
+				// 设置新闻回复Layout是否可见
+				mNewsReplyImgLayout.setVisibility(View.VISIBLE);
+				mNewsReplyEditLayout.setVisibility(View.GONE);
+				// 隐藏键盘
+				InputMethodManager m = (InputMethodManager) mNewsReplyContent.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+				m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
 				break;
 			//手指抬起
 			case MotionEvent.ACTION_UP:
@@ -210,6 +294,9 @@ public class NewsDetailsActivity extends Activity
 			mNewsBodyFlipper.setInAnimation(this, R.anim.push_left_in);
 			mNewsBodyFlipper.setOutAnimation(this, R.anim.push_left_out);
 			mPosition++;
+			//记录当前新闻编号
+			HashMap<String, Object> hashMap = mNewsData.get(mPosition);
+			mNid = (Integer) hashMap.get("nid");
 			//判断下一屏是否已经创建
 			if (mPosition >= mNewsBodyFlipper.getChildCount())
 			{

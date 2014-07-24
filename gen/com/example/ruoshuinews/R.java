@@ -1364,6 +1364,8 @@ containing a value of this type.
         public static final int no_news=0x7f0a0014;
         public static final int no_next_news=0x7f0a0017;
         public static final int no_pre_news=0x7f0a0018;
+        public static final int post_failure=0x7f0a001a;
+        public static final int post_success=0x7f0a0019;
         public static final int title_activity_comments=0x7f0a0011;
         public static final int title_activity_news_details=0x7f0a0010;
     }

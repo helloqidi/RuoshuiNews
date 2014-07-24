@@ -13,5 +13,7 @@
     <string name="load_news_failure">获取新闻失败</string>
     <string name="no_next_news">没有下篇新闻了</string>
     <string name="no_pre_news">没有上篇新闻了</string>
-
+    <string name="post_success">回复成功</string>
+    <string name="post_failure">回复失败</string>
+    
 </resources>
