@@ -211,11 +211,28 @@ containing a value of this type.
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
         public static final int activityChooserViewStyle=0x7f01006c;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int adType=0x7f010071;
         /**  Specifies a background drawable for the action bar. 
          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
         public static final int background=0x7f01002f;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int backgroundColor=0x7f01006f;
         /**  Specifies a background drawable for the bottom component of a split action bar. 
          <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
@@ -230,6 +247,14 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
          */
         public static final int backgroundStacked=0x7f010030;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int backgroundTransparent=0x7f010070;
         /**  A style that may be applied to Buttons placed within a
          LinearLayout with the style buttonBarStyle to form a button bar. 
          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
@@ -360,6 +385,26 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int iconifiedByDefault=0x7f01005a;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int image_height=0x7f010073;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int image_width=0x7f010072;
         /**  Specifies a style resource to use for an indeterminate progress spinner. 
          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
@@ -736,6 +781,15 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
         public static final int textAppearanceSmallPopupMenu=0x7f010015;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int textColor=0x7f01006e;
         /**  Text color for urls in search suggestions, used by things like global search 
          <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
@@ -743,6 +797,16 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
          */
         public static final int textColorSearchUrl=0x7f010068;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int textSize=0x7f010074;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -1095,39 +1159,40 @@ containing a value of this type.
         public static final int categorybar_item_background=0x7f020058;
         public static final int categorybar_right_arrow=0x7f020059;
         public static final int ic_launcher=0x7f02005a;
-        public static final int list_selected_background=0x7f02005b;
-        public static final int list_separator_line=0x7f02005c;
-        public static final int main_background=0x7f02007a;
-        public static final int news_collect_btn=0x7f02005d;
-        public static final int news_collect_btn_press=0x7f02005e;
-        public static final int news_collect_btn_selector=0x7f02005f;
-        public static final int news_reply_img_btn_background=0x7f020060;
-        public static final int news_reply_layout_background=0x7f020061;
-        public static final int news_reply_layout_divider=0x7f020062;
-        public static final int news_reply_post_btn_down=0x7f020063;
-        public static final int news_reply_post_btn_selector=0x7f020064;
-        public static final int news_reply_post_btn_up=0x7f020065;
-        public static final int news_share_btn=0x7f020066;
-        public static final int news_share_btn_press=0x7f020067;
-        public static final int news_share_btn_selector=0x7f020068;
-        public static final int newsdetails_title_next_btn_selector=0x7f020069;
-        public static final int newsdetails_title_previous_btn_selector=0x7f02006a;
-        public static final int newsdetails_titlebar_btn_next=0x7f02006b;
-        public static final int newsdetails_titlebar_btn_next_selected=0x7f02006c;
-        public static final int newsdetails_titlebar_btn_previous=0x7f02006d;
-        public static final int newsdetails_titlebar_btn_previous_selected=0x7f02006e;
-        public static final int newsdetails_titlebar_btn_refresh=0x7f02006f;
-        public static final int newsdetails_titlebar_btn_refresh_selected=0x7f020070;
-        public static final int newsdetails_titlebar_comments_background=0x7f020071;
-        public static final int newslist_item_background=0x7f02007b;
-        public static final int newslist_item_go_detail=0x7f020072;
-        public static final int newslist_item_go_detail_selected=0x7f020073;
-        public static final int newslist_item_go_detail_selector=0x7f020074;
-        public static final int newslist_item_selector=0x7f020075;
-        public static final int titlebar_background=0x7f020076;
-        public static final int titlebar_btn_refresh_selector=0x7f020077;
-        public static final int titlebar_button_refresh=0x7f020078;
-        public static final int titlebar_button_refresh_selected=0x7f020079;
+        public static final int kuka=0x7f02005b;
+        public static final int list_selected_background=0x7f02005c;
+        public static final int list_separator_line=0x7f02005d;
+        public static final int main_background=0x7f02007b;
+        public static final int news_collect_btn=0x7f02005e;
+        public static final int news_collect_btn_press=0x7f02005f;
+        public static final int news_collect_btn_selector=0x7f020060;
+        public static final int news_reply_img_btn_background=0x7f020061;
+        public static final int news_reply_layout_background=0x7f020062;
+        public static final int news_reply_layout_divider=0x7f020063;
+        public static final int news_reply_post_btn_down=0x7f020064;
+        public static final int news_reply_post_btn_selector=0x7f020065;
+        public static final int news_reply_post_btn_up=0x7f020066;
+        public static final int news_share_btn=0x7f020067;
+        public static final int news_share_btn_press=0x7f020068;
+        public static final int news_share_btn_selector=0x7f020069;
+        public static final int newsdetails_title_next_btn_selector=0x7f02006a;
+        public static final int newsdetails_title_previous_btn_selector=0x7f02006b;
+        public static final int newsdetails_titlebar_btn_next=0x7f02006c;
+        public static final int newsdetails_titlebar_btn_next_selected=0x7f02006d;
+        public static final int newsdetails_titlebar_btn_previous=0x7f02006e;
+        public static final int newsdetails_titlebar_btn_previous_selected=0x7f02006f;
+        public static final int newsdetails_titlebar_btn_refresh=0x7f020070;
+        public static final int newsdetails_titlebar_btn_refresh_selected=0x7f020071;
+        public static final int newsdetails_titlebar_comments_background=0x7f020072;
+        public static final int newslist_item_background=0x7f02007c;
+        public static final int newslist_item_go_detail=0x7f020073;
+        public static final int newslist_item_go_detail_selected=0x7f020074;
+        public static final int newslist_item_go_detail_selector=0x7f020075;
+        public static final int newslist_item_selector=0x7f020076;
+        public static final int titlebar_background=0x7f020077;
+        public static final int titlebar_btn_refresh_selector=0x7f020078;
+        public static final int titlebar_button_refresh=0x7f020079;
+        public static final int titlebar_button_refresh_selected=0x7f02007a;
     }
     public static final class id {
         public static final int action_bar=0x7f050053;
@@ -3234,5 +3299,164 @@ containing a value of this type.
           @attr name com.example.ruoshuinews:paddingStart
         */
         public static final int View_paddingStart = 1;
+        /** Attributes that can be used with a com_baidu_AdView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #com_baidu_AdView_adType com.example.ruoshuinews:adType}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_baidu_AdView_backgroundColor com.example.ruoshuinews:backgroundColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_baidu_AdView_backgroundTransparent com.example.ruoshuinews:backgroundTransparent}</code></td><td></td></tr>
+           <tr><td><code>{@link #com_baidu_AdView_textColor com.example.ruoshuinews:textColor}</code></td><td></td></tr>
+           </table>
+           @see #com_baidu_AdView_adType
+           @see #com_baidu_AdView_backgroundColor
+           @see #com_baidu_AdView_backgroundTransparent
+           @see #com_baidu_AdView_textColor
+         */
+        public static final int[] com_baidu_AdView = {
+            0x7f01006e, 0x7f01006f, 0x7f010070, 0x7f010071
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#adType}
+          attribute's value can be found in the {@link #com_baidu_AdView} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:adType
+        */
+        public static final int com_baidu_AdView_adType = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#backgroundColor}
+          attribute's value can be found in the {@link #com_baidu_AdView} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:backgroundColor
+        */
+        public static final int com_baidu_AdView_backgroundColor = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#backgroundTransparent}
+          attribute's value can be found in the {@link #com_baidu_AdView} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:backgroundTransparent
+        */
+        public static final int com_baidu_AdView_backgroundTransparent = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#textColor}
+          attribute's value can be found in the {@link #com_baidu_AdView} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:textColor
+        */
+        public static final int com_baidu_AdView_textColor = 0;
+        /** Attributes that can be used with a customTextView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #customTextView_image_height com.example.ruoshuinews:image_height}</code></td><td></td></tr>
+           <tr><td><code>{@link #customTextView_image_width com.example.ruoshuinews:image_width}</code></td><td></td></tr>
+           <tr><td><code>{@link #customTextView_textColor com.example.ruoshuinews:textColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #customTextView_textSize com.example.ruoshuinews:textSize}</code></td><td></td></tr>
+           </table>
+           @see #customTextView_image_height
+           @see #customTextView_image_width
+           @see #customTextView_textColor
+           @see #customTextView_textSize
+         */
+        public static final int[] customTextView = {
+            0x7f01006e, 0x7f010072, 0x7f010073, 0x7f010074
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#image_height}
+          attribute's value can be found in the {@link #customTextView} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:image_height
+        */
+        public static final int customTextView_image_height = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#image_width}
+          attribute's value can be found in the {@link #customTextView} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:image_width
+        */
+        public static final int customTextView_image_width = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#textColor}
+          attribute's value can be found in the {@link #customTextView} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:textColor
+        */
+        public static final int customTextView_textColor = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.ruoshuinews.R.attr#textSize}
+          attribute's value can be found in the {@link #customTextView} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.ruoshuinews:textSize
+        */
+        public static final int customTextView_textSize = 3;
     };
 }

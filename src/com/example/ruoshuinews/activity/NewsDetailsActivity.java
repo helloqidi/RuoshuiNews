@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -14,7 +15,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,6 +31,7 @@ import android.widget.ViewFlipper;
 import com.example.ruoshuinews.R;
 import com.example.ruoshuinews.model.Parameter;
 import com.example.ruoshuinews.service.SyncHttp;
+import com.example.ruoshuinews.view.CustomTextView;
 
 
 public class NewsDetailsActivity extends Activity
@@ -45,7 +46,8 @@ public class NewsDetailsActivity extends Activity
 	private int mNid;
 	
 	private final int FINISH = 0;
-	private TextView mNewsDetails;	//新闻详情所在的View
+//	private TextView mNewsDetails;	//新闻详情所在的View
+	private CustomTextView mNewsDetails;	//新闻详情所在的View,使用自定义的TextView,可现实图片
 	private Button mNewsdetailsTitlebarComm;// 新闻回复数
 	private int mCursor;
 	
@@ -53,6 +55,8 @@ public class NewsDetailsActivity extends Activity
 	private LinearLayout mNewsReplyImgLayout;// 发表新闻回复图片Layout
 	private LinearLayout mNewsReplyEditLayout;// 发表新闻回复编辑框Layout
 	private TextView mNewsReplyContent;// 新闻回复编辑框
+	
+	private boolean keyboardShow = false; //软件盘是否可见
 	
 	//new一个Handler
 	private Handler mHandler = new Handler()
@@ -64,7 +68,10 @@ public class NewsDetailsActivity extends Activity
 			{
 			case FINISH:
 				// 把获取到的新闻显示到界面上
-				mNewsDetails.setText(Html.fromHtml(msg.obj.toString()));
+//				mNewsDetails.setText(Html.fromHtml(msg.obj.toString()));
+				ArrayList<HashMap<String, Object>> bodyList = (ArrayList<HashMap<String,Object>>)msg.obj;
+				System.out.println("###:"+bodyList.size());
+				mNewsDetails.setText(bodyList);
 				break;
 			}
 		}
@@ -78,10 +85,12 @@ public class NewsDetailsActivity extends Activity
 		public void run()
 		{
 			// 从网络上获取新闻
-			String newsBody = getNewsBody();
+//			String newsBody = getNewsBody();
+			ArrayList<HashMap<String, Object>> bodyList = getNewsBody();
 			Message msg = mHandler.obtainMessage();
 			msg.arg1 = FINISH;
-			msg.obj = newsBody;
+//			msg.obj = newsBody;
+			msg.obj = bodyList;
 			mHandler.sendMessage(msg);
 		}
 	}
@@ -203,6 +212,7 @@ public class NewsDetailsActivity extends Activity
 				mNewsReplyEditLayout.setVisibility(View.VISIBLE);
 				mNewsReplyContent.requestFocus();	//光标聚焦到输入框
 				m.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);	//显示键盘
+				keyboardShow = true;
 				break;
 			// 发表新闻回复
 			case R.id.news_reply_post:
@@ -227,14 +237,17 @@ public class NewsDetailsActivity extends Activity
 			{
 			//手指按下
 			case MotionEvent.ACTION_DOWN:
+				if (keyboardShow)
+				{
+					// 设置新闻回复Layout是否可见
+					mNewsReplyImgLayout.setVisibility(View.VISIBLE);
+					mNewsReplyEditLayout.setVisibility(View.GONE);
+					InputMethodManager m = (InputMethodManager) mNewsReplyContent.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+					m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+					keyboardShow = false;				
+				}				
 				//记录起始坐标
 				mStartX = event.getX();
-				// 设置新闻回复Layout是否可见
-				mNewsReplyImgLayout.setVisibility(View.VISIBLE);
-				mNewsReplyEditLayout.setVisibility(View.GONE);
-				// 隐藏键盘
-				InputMethodManager m = (InputMethodManager) mNewsReplyContent.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-				m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
 				break;
 			//手指抬起
 			case MotionEvent.ACTION_UP:
@@ -258,11 +271,14 @@ public class NewsDetailsActivity extends Activity
 	 * 获取新闻详细信息
 	 * @return
 	 */
-	private String getNewsBody()
+//	private String getNewsBody()
+	private ArrayList<HashMap<String, Object>> getNewsBody()
 	{
-		String retStr = "网络连接失败，请稍后再试";
+//		String retStr = "网络连接失败，请稍后再试";
+		ArrayList<HashMap<String, Object>> bodyList = new ArrayList<HashMap<String,Object>>();
 		SyncHttp syncHttp = new SyncHttp();
-		String url = "http://192.168.3.80:9292/getNews";
+//		String url = "http://192.168.3.80:9292/getNews";
+		String url = "http://192.168.3.80:9292/getNewsWithImages";
 		String params = "nid=" + mNid;
 		try
 		{
@@ -274,14 +290,25 @@ public class NewsDetailsActivity extends Activity
 			{
 				JSONObject dataObject = jsonObject.getJSONObject("data");
 				JSONObject newsObject = dataObject.getJSONObject("news");
-				retStr = newsObject.getString("body");
+//				retStr = newsObject.getString("body");
+				JSONArray bodyArray = newsObject.getJSONArray("body");
+				for (int i=0;i<bodyArray.length();i++)
+				{
+					JSONObject object = (JSONObject)bodyArray.opt(i); 
+					HashMap<String, Object> hashMap = new HashMap<String, Object>();
+					hashMap.put("index", object.get("index"));
+					hashMap.put("type", object.get("type"));
+					hashMap.put("value", object.get("value"));
+					bodyList.add(hashMap);
+				}
 			}
 
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		return retStr;
+//		return retStr;
+		return bodyList;
 	}
 	
 	/**
@@ -363,7 +390,8 @@ public class NewsDetailsActivity extends Activity
 		mNewsBodyFlipper.addView(newsBodyLayout,index);
 	
 		// 给新闻Body添加触摸事件
-		mNewsDetails = (TextView) newsBodyLayout.findViewById(R.id.news_body_details);
+//		mNewsDetails = (TextView) newsBodyLayout.findViewById(R.id.news_body_details);
+		mNewsDetails = (CustomTextView) newsBodyLayout.findViewById(R.id.news_body_details);
 		mNewsDetails.setOnTouchListener(new NewsBodyOnTouchListener());
 	
 		// 启动线程

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<attr name="textColor" format="color" />
+	<!-- baidu广告暂时没用 -->
+	<declare-styleable name="com.baidu.AdView">
+		<attr name="backgroundColor" format="color" />
+		<attr name="textColor"/>
+		<attr name="backgroundTransparent" format="integer" />
+		<attr name="adType" format="integer" />
+	</declare-styleable> 
+	<declare-styleable name="customTextView">
+		<attr name="image_width" format="dimension" />
+		<attr name="image_height" format="dimension" />
+		<attr name="textSize" format="dimension" />
+		<attr name="textColor"/>
+	</declare-styleable>
+</resources>

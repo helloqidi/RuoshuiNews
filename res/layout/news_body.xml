@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:example="http://schemas.android.com/apk/res/com.example.ruoshuinews"
 	android:id="@id/news_body_layout"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
@@ -61,6 +62,7 @@
 					android:clickable="false"
 					style="?android:attr/progressBarStyleLarge" />
 			</LinearLayout>
+			<!--
 			<TextView
 		        android:id="@id/news_body_details"
 		        android:layout_width="wrap_content"
@@ -68,6 +70,14 @@
 		        android:layout_marginTop="5.0dip"
 		        android:textColor="#ff000000" 
 		        />
+		     -->
+		     <com.example.ruoshuinews.view.CustomTextView
+				android:id="@id/news_body_details"
+			    android:layout_width="fill_parent" 
+			    android:layout_height="wrap_content" 
+			    example:image_width="200dip"
+			    example:image_height="52dip"
+			    />			    		
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>
