@@ -193,6 +193,8 @@ public class NewsDetailsActivity extends Activity
 			// 显示评论
 			case R.id.newsdetails_titlebar_comments:
 				Intent intent = new Intent(NewsDetailsActivity.this, CommentsActivity.class);
+				//传递新闻ID
+				intent.putExtra("nid", mNid);
 				startActivity(intent);
 				break;
 			// 新闻回复图片

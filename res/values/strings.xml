@@ -15,5 +15,7 @@
     <string name="no_pre_news">没有上篇新闻了</string>
     <string name="post_success">回复成功</string>
     <string name="post_failure">回复失败</string>
-    
+    <string name="no_comments">暂时没有回复</string>
+    <string name="get_comms_failure">获取回复失败</string>
+       
 </resources>

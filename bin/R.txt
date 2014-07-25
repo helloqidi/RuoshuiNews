@@ -452,10 +452,12 @@ int string abc_shareactionprovider_share_with 0x7f0a000c
 int string abc_shareactionprovider_share_with_application 0x7f0a000b
 int string action_settings 0x7f0a000f
 int string app_name 0x7f0a000d
+int string get_comms_failure 0x7f0a001c
 int string hello_world 0x7f0a000e
 int string load_news_failure 0x7f0a0016
 int string loadmore_btn 0x7f0a0012
 int string loadmore_txt 0x7f0a0013
+int string no_comments 0x7f0a001b
 int string no_more_news 0x7f0a0015
 int string no_news 0x7f0a0014
 int string no_next_news 0x7f0a0017
