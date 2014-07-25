@@ -43,7 +43,7 @@ import com.example.ruoshuinews.util.StringUtil;
 public class MainActivity extends Activity {
 
 	
-	private final int COMUMNWIDTHPX = 100;	// 新闻分类的宽度
+	private final int COMUMNWIDTHPX = 200;	// 新闻分类的宽度
 	private int mColumnWidthDip;
 	
 	private final int FLINGVELOCITYPX =800;	// 滚动距离
