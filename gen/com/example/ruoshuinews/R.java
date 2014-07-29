@@ -3299,7 +3299,7 @@ containing a value of this type.
           @attr name com.example.ruoshuinews:paddingStart
         */
         public static final int View_paddingStart = 1;
-        /** Attributes that can be used with a com_baidu_AdView.
+        /**  baidu广告暂时没用 
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
